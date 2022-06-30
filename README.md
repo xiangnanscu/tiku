@@ -1,2 +1,2 @@
 # tiku
-[tiku](https://xiangnanscu.github.io/tiku/) - an exam parser
+[tiku](https://xiangnanscu.github.io/tiku/) -an question parser
