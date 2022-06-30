@@ -1,11 +1,11 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import lua2js from './components/lua2js.vue'
+import generateExamFile from './components/generateExamFile.vue'
 </script>
 
 <template>
-  <lua2js />
+  <generateExamFile />
 </template>
 
 <style lang="scss">
@@ -29,7 +29,4 @@ $blue: #04405e !default;
 $sidebar-background-color: #eeeeee;
 $sidebar-hover-color: #37424f;
 @import "node_modules/bootstrap/scss/bootstrap.scss";
-span.hljs-string {
-  color: #22863A
-}
 </style>

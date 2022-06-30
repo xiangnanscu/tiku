@@ -22,10 +22,10 @@ git commit -m 'deploy'
 
 if [ -v $USE_HTTPS ]; then
   echo "use https proto"
-  git push -f https://github.com/xiangnanscu/lua2js.git master:gh-pages
+  git push -f https://github.com/xiangnanscu/tiku.git master:gh-pages
 else
   echo "use git proto"
-  git push -f git@github.com:xiangnanscu/lua2js.git master:gh-pages
+  git push -f git@github.com:xiangnanscu/tiku.git master:gh-pages
 fi
 cd -
 yarn push

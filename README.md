@@ -1,3 +1,2 @@
-# lua2js
-[lua2js](https://xiangnanscu.github.io/lua2js/)
-transform lua to js literally.
+# tiku
+[tiku](https://xiangnanscu.github.io/tiku/) - an exam parser
