@@ -1,0 +1,29 @@
+{
+  "name": "@xiangnanscu/lua2js",
+  "version": "0.0.0",
+  "scripts": {
+    "nginx": "nginx -p . -c nginx.conf",
+    "nginx:reload": "yarn nginx -s reload",
+    "nginx:stop": "yarn nginx -s stop",
+    "push": "git add . && git commit -am 'push' && git push origin master",
+    "deploy": "rm -rf dist && ./deploy.sh",
+    "deploys": "USE_HTTPS= yarn deploy",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@highlightjs/vue-plugin": "^2.1.0",
+    "bootstrap": "^5.1.3",
+    "file-saver": "^2.0.5",
+    "highlight.js": "^11.5.1",
+    "luaparse": "^0.3.1",
+    "prettier": "^2.6.2",
+    "vue": "^3.2.25"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.3.3",
+    "sass": "^1.52.1",
+    "vite": "^2.9.9"
+  }
+}
