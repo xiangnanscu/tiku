@@ -6,61 +6,61 @@
       </div>
     </div>
     <div class="row">
-      <div class="col">
-        <div class="alert alert-danger" v-show="wrongNumber">
+      <div v-if="wrongNumber" class="col">
+        <div class="alert alert-danger">
           解析出错{{ wrongNumber }}道题
         </div>
       </div>
-      <div class="col">
-        <div v-show="correctNumber" class="alert alert-success">
+      <div v-if="correctNumber" class="col">
+        <div class="alert alert-success">
           解析成功{{ correctNumber }}道题
         </div>
       </div>
+    </div>
+    <div v-if="readyToPost" class="row">
+      <div class="col">
+        <button class=" form-control" type="submit" @click="downloadExam">
+          <span style="color:green;font-weight: bold;">导出为xlsx文件</span>
+        </button>
       </div>
-      <div v-if="readyToPost" class="row">
-        <div class="col">
-          <button class=" form-control" type="submit" @click="downloadExam">
-            导出为xlsx文件
-          </button>
-        </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <form method="post" @submit.prevent="sendRecords">
+          <textarea class="form-control" v-model.lazy="text" rows="35"></textarea>
+        </form>
       </div>
-      <div class="row">
-        <div class="col">
-          <form method="post" @submit.prevent="sendRecords">
-            <textarea class="form-control" v-model.lazy="text" rows="35"></textarea>
-          </form>
-        </div>
-        <div class="col">
-          <div>
-            <ol class="list-group" style="text-align: left">
-              <li v-for="(ti, i) in records" :key="i">
-                <ul :class="{ 'list-group': true, 'parse-error': ti.error }">
-                  <li v-if="ti.error" class="list-group-item">
-                    ERROR:{{ ti.error }}
-                  </li>
-                  <li class="list-group-item">类型:{{ ti.type }}</li>
+      <div class="col">
+        <div>
+          <ol class="list-group" style="text-align: left">
+            <li v-for="(ti, i) in records" :key="i">
+              <ul :class="{ 'list-group': true, 'parse-error': ti.error }">
+                <li v-if="ti.error" class="list-group-item">
+                  ERROR:{{ ti.error }}
+                </li>
+                <li class="list-group-item">类型:{{ ti.type }}</li>
+                <li class="list-group-item">
+                  <div>{{ ti.content }}</div>
+                </li>
+                <template v-for="opt in ti.options">
                   <li class="list-group-item">
-                    <div>{{ ti.content }}</div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" :value="opt[0]" />
+                      <label class="form-check-label" for="defaultCheck1">
+                        {{ opt[0] }}．{{ opt[1] }}
+                      </label>
+                    </div>
                   </li>
-                  <template v-for="opt in ti.options">
-                    <li class="list-group-item">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" :value="opt[0]" />
-                        <label class="form-check-label" for="defaultCheck1">
-                          {{ opt[0] }}．{{ opt[1] }}
-                        </label>
-                      </div>
-                    </li>
-                  </template>
-                  <li class="list-group-item">答案:{{ ti.answer }}</li>
-                  <li class="list-group-item">解析:{{ ti.hint }}</li>
-                </ul>
-              </li>
-            </ol>
-          </div>
+                </template>
+                <li class="list-group-item">答案:{{ ti.answer }}</li>
+                <li class="list-group-item">解析:{{ ti.hint }}</li>
+              </ul>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
+  </div>
 </template>
 <script>
 import convert from "../parse.js";
