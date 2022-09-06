@@ -92,7 +92,7 @@ export default {
   methods: {
     downloadExam() {
       let rows = this.records.map((e, i) => [
-        i + 1, e.content, e.type == '单选' ? 1 : 2, "一般", e.type, e.answer, e.hint, e.options[0][1], e.options[1][1], e.options[2][1], e.options[3][1], "", ""
+        i + 1, e.content, e.type == '单选' ? 1 : 2, "一般", e.type, e.answer, e.hint, e.options[0][1], e.options[1][1], e.options[2] && e.options[2][1], e.options[3] && e.options[3][1], "", ""
       ])
       return arrayToFile({
         data: [head, ...rows],
