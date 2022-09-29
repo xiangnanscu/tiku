@@ -19,9 +19,17 @@ let makeJudgeOptions = () => [
   ["B", "错误"]
 ];
 function check_row(row) {
+  if (!row.answer) {
+    if (!row.tiankong_answers) {
+      row.error = "题目必须包含答案";
+    } else {
+      row.answer = row.tiankong_answers
+    }
+  }
   for (let [key, value] of Object.entries(MUST)) {
     if (!row[key]) {
       row.error = "题目必须包含" + value;
+      console.log(row)
     }
   }
   let a = row["options"].map(e => e[0]).join("");
@@ -29,9 +37,18 @@ function check_row(row) {
   if (a !== b) {
     row.error = `选项字母顺序${a}不对, 应按ABCDEFGH的顺序`;
   }
+  if (!row.type && row.answer instanceof Array) {
+    row.type = '填空'
+  }
   if (!TYPES.includes(row.type)) {
     row.error = `类型不对：${row.type},限:${TYPES}`;
   }
+  if (row.isABCD) {
+    row.content = row.content.replace(/[(（]([ABCDEFGH]+|正确|错误|对|错)[)）]/g, "（）")
+  } else {
+    row.content = row.content.replace(/[(（][^(（)）]+[)]/g, "（）")
+  }
+  console.log(row)
 }
 function makeJudge(row, answer) {
   row["options"] = makeJudgeOptions();
@@ -83,6 +100,40 @@ function getOptions(line, row) {
   ret.push(opt);
   return ret;
 }
+function extract_tiankong_bracket(row, answer) {
+  let n = null
+
+}
+function hanlder_brackets(row, line) {
+  let n = null
+  if (n = line.match(/[(（]\s*(?<type>多选|单选|不定项|填空|判断|案例|简答)题?\s*[）)]/i)) {
+    // 类型包含在题干里, 最高优先级
+    row["type"] = n.groups.type;
+  }
+  if (n = Array.from(line.matchAll(/[(（]\s*(?<answer>[^(（）)]+)\s*[）)]/ig))) {
+    // 提取所有括号内的字符
+    for (const e of n) {
+      let answer = e.groups.answer
+      if (n = answer.match(/^[ABCDEFGH]+|正确|错误|对|错$/)) {
+        // 客观题答案包含在题干里
+        print('客观题答案包含在题干里')
+        row.isABCD = true
+        if (answer.match(/正确|错误|对|错/)) {
+          makeJudge(row, answer)
+        } else if (answer.match(/[ABCDEFGH]+/)) {
+          row["type"] = row["type"] || (answer.length == 1 ? "单选" : "多选")
+          row.answer = answer;
+        }
+      } else {
+        if (!row.tiankong_answers) {
+          row.tiankong_answers = []
+        }
+        row.tiankong_answers.push(answer)
+      }
+    }
+  }
+
+}
 function convert(s) {
   let date = new Date();
   let row = null;
@@ -90,11 +141,9 @@ function convert(s) {
   let last_state = 'init';
   let title = "";
   let m = null;
-  let d = null;
   let n, type;
   let answer = "";
   let multiNumber = 0
-  let done = 0
   for (let line of s.split("\n")) {
     line = line.trim();
     if (!line) {
@@ -122,20 +171,20 @@ function convert(s) {
       continue
     }
     // 识别板块
-    if (
-      (m = line.match(
-        /^[(（]?[一二三四五六七][）)]?\s*[．.、]?\s*(?<title>党建理论知识|就业创业|社会保险|劳动关系|人事人才|综合服务标准规范)/
-      ))
-    ) {
-      last_state = 'init'
-      title = m.groups["title"];
-      if (title == "党建理论知识") {
-        title = "党建理论";
-      } else if (title == "综合服务标准规范") {
-        title = "综合服务";
-      }
-      continue;
-    }
+    // if (
+    //   (m = line.match(
+    //     /^[(（]?[一二三四五六七][）)]?\s*[．.、]?\s*(?<title>党建理论知识|就业创业|社会保险|劳动关系|人事人才|综合服务标准规范)/
+    //   ))
+    // ) {
+    //   last_state = 'init'
+    //   title = m.groups["title"];
+    //   if (title == "党建理论知识") {
+    //     title = "党建理论";
+    //   } else if (title == "综合服务标准规范") {
+    //     title = "综合服务";
+    //   }
+    //   continue;
+    // }
     // 识别题型
     if ((m = line.match(/^[一二三四五六七]\s*[．.、]\s*(?<type>多选|单选|不定项|填空|判断|案例|简答)题?/))) {
       type = m.groups["type"];
@@ -168,23 +217,8 @@ function convert(s) {
       row["options"] = [];
       row["suite"] = `${date.getMonth() + 1}${date.getDate()}`;
       row["type"] = type || "";
-      if (n = line.match(/[(（]\s*(?<type>多选|单选|不定项|填空|判断|案例|简答)题?\s*[）)]/i)) {
-        // 类型包含在题干里, 最高优先级
-        row["type"] = n.groups.type;
-      }
-      if (n = line.match(/[(（]\s*(?<answer>[ABCDEFGH]+|正确|错误|对|错)\s*[）)]/i)) {
-        // 客观题答案包含在题干里
-        print('客观题答案包含在题干里')
-        let answer = n.groups.answer;
-        row.content = row.content.replace(n[0], "()");
-        if (answer.match(/正确|错误|对|错/)) {
-          makeJudge(row, answer)
-        } else if (answer.match(/[ABCDEFGH]+/)) {
-          row["type"] = row["type"] || (answer.length == 1 ? "单选" : "多选")
-          row.answer = answer;
-        }
-      }
       last_state = "content";
+      hanlder_brackets(row, line)
       continue;
     }
     // 识别ABCD选项
@@ -232,7 +266,9 @@ function convert(s) {
     if (last_state == 'init') {
       continue;
     }
+    // 多行的内容、解析、答案
     if ("content,hint,answer".includes(last_state)) {
+      hanlder_brackets(row, line)
       row[last_state] = row[last_state] + "\n" + line;
     } else {
       // 目前只可能是选项
